@@ -2,7 +2,9 @@ package org.example.crudoperations.service;
 
 
 import org.example.crudoperations.entity.Product;
+import org.example.crudoperations.exceptions.ProductNotExist;
 import org.example.crudoperations.repository.ProductRepository;
+import org.example.crudoperations.requests.ProductRequest;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,11 +30,13 @@ public class ProductServiceTest {
     ArgumentCaptor<Product> productArgumentCaptor;
 
     Product testProduct;
+    ProductRequest testProductRequest;
 
     UUID id=UUID.randomUUID();
     @Before
     public void setup(){
         testProduct=new Product("prod1",20,1200.0);
+        testProductRequest=new ProductRequest(id,"prod1",100,1200.0);
 
     }
     @Test
@@ -42,13 +46,7 @@ public class ProductServiceTest {
         Assert.assertEquals(productArgumentCaptor.getValue(),testProduct);
 
     }
-    @Test
-    public void testSaveProducts() {
 
-        productService.saveProducts(Arrays.asList(testProduct));
-        Mockito.verify(repository,Mockito.times(1)).saveAll(Arrays.asList(testProduct));
-
-    }
     @Test
     public void testGetProducts() {
         List productList=Arrays.asList(testProduct);
@@ -69,12 +67,11 @@ public class ProductServiceTest {
         Assert.assertEquals(testProduct,returnedProduct);
 
     }
-    @Test
+    @Test(expected = ProductNotExist.class)
     public void testGetProductNullById() {
         Mockito.when(repository.findById(Mockito.eq(id))).thenReturn(Optional.empty());
         Product returnedProduct= productService.getProductById(id);
         Mockito.verify(repository,Mockito.times(1)).findById(id);
-        Assert.assertNull(returnedProduct);
 
 
     }
@@ -91,7 +88,7 @@ public class ProductServiceTest {
         Mockito.when(repository.findById(Mockito.eq(id))).thenReturn(Optional.of(testProduct));
         Mockito.when(repository.save(Mockito.eq(updatedProduct))).thenReturn(updatedProduct);
 
-        Product returnedProduct= productService.updateProduct(id,updatedProduct);
+        Product returnedProduct= productService.updateProduct(id,testProductRequest);
         Mockito.verify(repository,Mockito.times(1)).findById(id);
         Mockito.verify(repository,Mockito.times(1)).save(updatedProduct);
         Assert.assertNotNull(returnedProduct);

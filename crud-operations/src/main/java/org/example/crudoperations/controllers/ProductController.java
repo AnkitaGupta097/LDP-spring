@@ -1,6 +1,8 @@
 package org.example.crudoperations.controllers;
 
 import org.example.crudoperations.entity.Product;
+import org.example.crudoperations.mappers.EntityMapper;
+import org.example.crudoperations.requests.ProductRequest;
 import org.example.crudoperations.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -14,14 +16,14 @@ public class ProductController {
     @Autowired
     private ProductService productService;
 
+    @Autowired
+    private EntityMapper entityMapper;
+
     @PostMapping("/addProduct")
-    public Product addProduct(@RequestBody Product product){
-       return productService.saveProduct(product);
+    public Product addProduct(@RequestBody ProductRequest product){
+       return productService.saveProduct(entityMapper.productRequestToProduct(product));
     }
-    @PostMapping("/addProducts")
-    public List<Product> addProduct(@RequestBody List<Product> products){
-        return productService.saveProducts(products);
-    }
+
     @GetMapping("/products")
     public List<Product> findAllProducts(){
         return productService.getProducts();
@@ -35,7 +37,7 @@ public class ProductController {
          productService.deleteProduct(id);
     }
     @PutMapping("/update/{id}")
-    public Product updateTutorial(@PathVariable("id") UUID id, @RequestBody Product product) {
+    public Product updateTutorial(@PathVariable("id") UUID id, @RequestBody ProductRequest product) {
        return productService.updateProduct(id,product);
     }
 

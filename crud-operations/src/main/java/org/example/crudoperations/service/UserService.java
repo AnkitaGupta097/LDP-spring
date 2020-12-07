@@ -36,7 +36,7 @@ public class UserService implements UserDetailsService {
             throw new UsernameNotFoundException("Invalid username or password.");
         }
         User user=userOptional.get();
-        UserDetails userDetails=  new org.springframework.security.core.userdetails.User(user.getUserId(), user.getPassword(), mapRolesToAuthorities(user.getRoles()));
+        UserDetails userDetails=  new org.springframework.security.core.userdetails.User(user.getUserId(), user.getPassword(), mapRolesToAuthorities(user.getRoles())); //NOSONAR
         return userDetails;
     }
     private Collection<SimpleGrantedAuthority> mapRolesToAuthorities(Collection<Role> roles){

@@ -35,6 +35,7 @@ public class ProductIntegrationTest {
 
     @MockBean
     ProductRepository productRepository;
+
     UUID id=UUID.randomUUID();
     @Test
     public void testRetrieveProduct() throws JsonProcessingException {
@@ -43,7 +44,7 @@ public class ProductIntegrationTest {
         Product product = new Product( "product1", 199, Double.valueOf(440));
         HttpEntity<String> entity = new HttpEntity<>(null, headers);
         Mockito.when(productRepository.findById(Mockito.eq(id))).thenReturn(Optional.of(product));
-        ResponseEntity<String> response = restTemplate.withBasicAuth("ankita","ankita").exchange(
+        ResponseEntity<String> response = restTemplate.withBasicAuth("admin","admin").exchange(
                 createURLWithPort("/product/"+id),
                 HttpMethod.GET, entity, String.class);
 
@@ -56,16 +57,15 @@ public class ProductIntegrationTest {
 
 
         Product product = new Product("product1", 199, Double.valueOf(440));
-        String productInJson = objectMapper.writeValueAsString(product);
 
         HttpEntity<Product> entity = new HttpEntity<>(product, headers);
         Mockito.when(productRepository.save(Mockito.any(Product.class))).thenReturn(product);
-        ResponseEntity<String> response = restTemplate.withBasicAuth("ankita","ankita").exchange(
+        ResponseEntity<Product> response = restTemplate.withBasicAuth("admin","admin").exchange(
                 createURLWithPort("/addProduct"),
-                HttpMethod.POST, entity, String.class);
+                HttpMethod.POST, entity, Product.class);
 
 
-        Assert.assertEquals(productInJson, response.getBody());
+        Assert.assertEquals(product.getName(), response.getBody().getName());
         Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
 
     }

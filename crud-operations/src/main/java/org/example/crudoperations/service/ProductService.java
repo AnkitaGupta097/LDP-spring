@@ -1,7 +1,9 @@
 package org.example.crudoperations.service;
 
 import org.example.crudoperations.entity.Product;
+import org.example.crudoperations.exceptions.ProductNotExist;
 import org.example.crudoperations.repository.ProductRepository;
+import org.example.crudoperations.requests.ProductRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,29 +14,26 @@ import java.util.UUID;
 @Service
 public class ProductService {
     @Autowired
-    private ProductRepository repository;
+    private ProductRepository productRepository;
 
     public Product saveProduct(Product product){
-       return repository.save(product);
+       return productRepository.save(product);
     }
 
-    public List<Product> saveProducts(List<Product> products){
-        return repository.saveAll(products);
-    }
     public List<Product> getProducts(){
-       return repository.findAll();
+       return productRepository.findAll();
 
     }
     public Product getProductById(UUID id){
-        return repository.findById(id).orElse(null);
+        return productRepository.findById(id).orElseThrow(()->new ProductNotExist(id));
     }
 
     public void deleteProduct(UUID id){
-         repository.deleteById(id);
+         productRepository.deleteById(id);
     }
 
-    public Product updateProduct(UUID id,Product product){
-        Optional<Product> productToUpdateOptional = repository.findById(id);
+    public Product updateProduct(UUID id, ProductRequest product){
+        Optional<Product> productToUpdateOptional = productRepository.findById(id);
 
         if (productToUpdateOptional.isPresent()) {
             Product productToUpdate = productToUpdateOptional.get();
@@ -42,9 +41,10 @@ public class ProductService {
             productToUpdate.setPrice(product.getPrice());
             productToUpdate.setName(product.getName());
 
-            return repository.save(productToUpdate);
+            return productRepository.save(productToUpdate);
         } else {
-            return null;
+         throw new ProductNotExist(id);
         }
+
     }
 }
